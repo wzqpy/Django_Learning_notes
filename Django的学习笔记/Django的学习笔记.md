@@ -492,3 +492,104 @@ aggregate(*args, **kwargs)
  
 
     bookList=Book.objects.filter(Q(publishDate__year=2016) | Q(publishDate__year=2017),title__icontains="python")
+
+
+### 6、会话 cookie 与 session
+
+#### Cookie概述
+Cookie翻译成中文是小甜点，小饼干的意思。在HTTP中它表示服务器送给客户端浏览器的小甜点。其实Cookie是key-value结构，类似于一个python中的字典。随着服务器端的响应发送给客户端浏览器。然后客户端浏览器会把Cookie保存起来，当下一次再访问服务器时把Cookie再发送给服务器。 Cookie是由服务器创建，然后通过响应发送给客户端的一个键值对。客户端会保存Cookie，并会标注出Cookie的来源（哪个服务器的Cookie）。当客户端向服务器发出请求时会把所有这个服务器Cookie包含在请求中发送给服务器，这样服务器就可以识别客户端了！
+
+![Alt text](./屏幕快照 2018-12-04 下午3.02.48.png)
+
+
+
+**Cookie规范**
+- Cookie大小上限为4KB；
+	一个服务器最多在客户端浏览器上保存20个Cookie；
+	一个浏览器最多保存300个Cookie；
+
+上面的数据只是HTTP的Cookie规范，但在浏览器大战的今天，一些浏览器为了打败对手，为了展现自己的能力起见，可能对Cookie规范“扩展”了一些，例如每个Cookie的大小为8KB，最多可保存500个Cookie等！但也不会出现把你硬盘占满的可能！
+>注意，不同浏览器之间是不共享Cookie的。也就是说在你使用IE访问服务器时，服务器会把Cookie发给IE，然后由IE保存起来，当你在使用FireFox访问服务器时，不可能把IE保存的Cookie发送给服务器。
+
+**Cookie与HTTP头**
+Cookie是通过HTTP请求和响应头在客户端和服务器端传递的：
+
+- Cookie：请求头，客户端发送给服务器端；
+格式：Cookie: a=A; b=B; c=C。即多个Cookie用分号离开； Set-Cookie：响应头，服务器端发送给客户端；一个Cookie对象一个Set-Cookie： Set-Cookie: a=A Set-Cookie: b=B Set-Cookie: c=C
+
+**Cookie的覆盖**
+- 如果服务器端发送重复的Cookie那么会覆盖原有的Cookie，例如客户端的第一个请求服务器端发送的Cookie是：Set-Cookie: a=A；第二请求服务器端发送的是：Set-Cookie: a=AA，那么客户端只留下一个Cookie，即：a=AA。
+
+**django中的cookie语法**
+
+    # 设置cookie：
+    rep = HttpResponse(...) 或 rep ＝ render(request, ...) 或 rep ＝ redirect()  
+	rep.set_cookie(key,value,...)
+	rep.set_signed_cookie(key,value,salt='加密盐',...)
+	
+	# 获取cookie：
+	request.COOKIES
+	
+	# 删除cookie：
+	response.delete_cookie("cookie_key",path="/",domain=name)
+
+#### session概述
+
+Session是服务器端技术，利用这个技术，服务器在运行时可以 为每一个用户的浏览器创建一个其独享的session对象，由于 session为用户浏览器独享，所以用户在访问服务器的web资源时 ，可以把各自的数据放在各自的session中，当用户再去访问该服务器中的其它web资源时，其它web资源再从用户各自的session中 取出数据为用户服务。
+
+![Alt text](./屏幕快照 2018-12-04 下午3.03.02.png)
+
+**django中session语法**
+
+    1、设置Sessions值
+          request.session['session_name'] ="admin"
+	2、获取Sessions值
+          session_name = request.session["session_name"]
+	3、删除Sessions值
+          del request.session["session_name"]
+	4、flush()
+     删除当前的会话数据并删除会话的Cookie。
+     这用于确保前面的会话数据不可以再次被用户的浏览器访问
+	5、get(key, default=None)
+	  fav_color = request.session.get('fav_color', 'red')  
+	6、pop(key)
+	  fav_color = request.session.pop('fav_color')  
+	7、keys()
+	8、items()  
+	9、setdefault()  
+	10 用户session的随机字符串
+        request.session.session_key
+
+        # 将所有Session失效日期小于当前日期的数据删除
+        request.session.clear_expired()
+
+        # 检查 用户session的随机字符串 在数据库中是否
+        request.session.exists("session_key")
+
+        # 删除当前用户的所有Session数据
+        request.session.delete("session_key")
+
+        request.session.set_expiry(value)
+            * 如果value是个整数，session会在些秒数后失效。
+            * 如果value是个datatime或timedelta，session就会在这个时间后失效。
+            * 如果value是0,用户关闭浏览器session就会失效。
+            * 如果value是None,session会依赖全局session失效策略。
+
+
+**session配置**
+
+
+    Django默认支持Session，并且默认是将Session数据存储在数据库中，即：django_session 表中。
+
+	a. 配置 settings.py
+
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'   # 引擎（默认）
+
+    SESSION_COOKIE_NAME ＝ "sessionid"                       # Session的cookie保存在浏览器上时的key，即：sessionid＝随机字符串（默认）
+    SESSION_COOKIE_PATH ＝ "/"                               # Session的cookie保存的路径（默认）
+    SESSION_COOKIE_DOMAIN = None                             # Session的cookie保存的域名（默认）
+    SESSION_COOKIE_SECURE = False                            # 是否Https传输cookie（默认）
+    SESSION_COOKIE_HTTPONLY = True                           # 是否Session的cookie只支持http传输（默认）
+    SESSION_COOKIE_AGE = 1209600                             # Session的cookie失效日期（2周）（默认）
+    SESSION_EXPIRE_AT_BROWSER_CLOSE = False                  # 是否关闭浏览器使得Session过期（默认）
+    SESSION_SAVE_EVERY_REQUEST = False                       # 是否每次请求都保存Session，默认修改之后才保存（默认）
