@@ -34,9 +34,13 @@
     }
 	}
 
+注意：
+import pymysql
+pymysql.install_as_MySQLdb()
 
 ![Alt text](./屏幕快照 2018-12-16 下午12.40.16.png)
 
+pip install PyMYSQL
 
 ![Alt text](./屏幕快照 2018-12-16 下午12.46.41.png)
 
@@ -109,3 +113,39 @@ setting.py里面配置
 
 注册
 ![Alt text](./屏幕快照 2018-12-17 下午1.19.50.png)
+
+
+
+
+#####11、 ForeignKey
+
+    # 相关参数
+    (1)null
+ 
+	如果为True，Django 将用NULL 来在数据库中存储空值。 默认值是 False.
+	 
+	(1)blank
+	 
+	如果为True，该字段允许不填。默认为False。
+	要注意，这与 null 不同。null纯粹是数据库范畴的，而 blank 是数据验证范畴的。
+	如果一个字段的blank=True，表单的验证将允许该字段是空值。如果字段的blank=False，该字段就是必填的。
+	 
+	(2)default
+	 
+	字段的默认值。可以是一个值或者可调用对象。如果可调用 ，每有新对象被创建它都会被调用。
+	 
+	(3)primary_key
+	 
+	如果为True，那么这个字段就是模型的主键。如果你没有指定任何一个字段的primary_key=True，
+	Django 就会自动添加一个IntegerField字段做为主键，所以除非你想覆盖默认的主键行为，
+	否则没必要设置任何一个字段的primary_key=True。
+	 
+	(4)unique
+	 
+	如果该值设置为 True, 这个数据字段的值在整张表中必须是唯一的
+	 
+	(5)choices
+	由二元组组成的一个可迭代对象（例如，列表或元组），用来给字段提供选择项。 如果设置了choices ，默认的表单将是一个选择框而不是标准的文本框，<br>而且这个选择框的选项就是choices 中的选项。
+
+**related_name**
+当一张表的多个字段指向同一张表时，会出错。系统无法知道，通过另外一张表，访问XXX_set属性访问到的是哪个属性。这时，我们就需要为每个字段定义一个related_name属性，另外一张表访问这个表时，就会根据related_name的值来得到各个属性了。
