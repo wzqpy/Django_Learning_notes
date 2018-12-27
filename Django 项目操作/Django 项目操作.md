@@ -149,3 +149,19 @@ setting.py里面配置
 
 **related_name**
 当一张表的多个字段指向同一张表时，会出错。系统无法知道，通过另外一张表，访问XXX_set属性访问到的是哪个属性。这时，我们就需要为每个字段定义一个related_name属性，另外一张表访问这个表时，就会根据related_name的值来得到各个属性了。
+
+
+##### 12、url 路由分发的 include
+
+
+在django 2.0 中 使用路由分发，需要在APP下的urls 的urlpatterns 前面添加 app_name[' APPname ']
+
+![Alt text](./屏幕快照 2018-12-21 下午2.15.08.png)
+
+
+##### 13、在setting中修改语言
+
+
+**替换 原有的 LANGUAGE =“en-us” 换成 “zh-hans”**
+![Alt text](./屏幕快照 2018-12-20 下午9.04.37.png)
+
